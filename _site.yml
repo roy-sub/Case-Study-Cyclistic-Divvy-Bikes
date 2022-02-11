@@ -1,11 +1,15 @@
-name: "MyLabJournal"
+name: "Case Study Cyclistic "
 navbar:
-  title: "MyLabJournal"
+  title: "Case Study Cyclistic "
   left:
     - text: "Home"
       href: index.html
-    - text: "Journal"
-      href: Journal.html
-    - text: "Links"
-      href: Links.html
+    - text: "Data Cleaning"
+      href: Data_cleaning Process.html
+    - text: "Data Analysis"
+      href: Data Analysis.html
+    - text: "Final Report"
+      href: Final report.html
+      
 output_dir: "docs"
+
