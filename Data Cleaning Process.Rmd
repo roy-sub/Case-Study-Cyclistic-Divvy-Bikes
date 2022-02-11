@@ -1,0 +1,426 @@
+---
+title: <br> 
+  Data Cleaning
+output:
+  rmdformats::downcute: 
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(rmdformats)
+
+options(max.print="75")
+opts_chunk$set(echo=TRUE,
+               prompt=FALSE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE, 
+               results="hide")
+opts_knit$set(width=75)
+```
+
+# 1. Document description 
+
+This document gives a brief outline of all the steps taken to clean and transform the Cyclistic's raw datasets - to prepare the data for the next stage of analysis. For the purpose of this case study, only data collected between September 2020 - August 2021 will be used. The description of the datasets used can be located [here.](https://www.divvybikes.com/system-data)
+
+The datasets have a different name because Cyclistic is a fictional company. For the purposes of this case study, the datasets are appropriate and will enable you to answer the business questions. The data has been made available by Motivate International Inc. under this [license.](https://www.divvybikes.com/data-license-agreement)
+
+```{r load packages}
+library(tidyverse)
+library(data.table)
+```
+
+# 2. Combining datasets 
+### 2.1 Loading raw data 
+
+```{r loading individual datasets}
+Sep_2020 <- read.csv("C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//202009-divvy-tripdata.csv")
+Oct_2020 <- read.csv("C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//202010-divvy-tripdata.csv")
+Nov_2020 <- read.csv("C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//202011-divvy-tripdata.csv")
+Dec_2020 <- read_csv("C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//202012-divvy-tripdata.csv")
+Jan_2021 <- read.csv("C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//202101-divvy-tripdata.csv")
+Feb_2021 <- read.csv("C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//202102-divvy-tripdata.csv")
+Mar_2021 <- read.csv("C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//202103-divvy-tripdata.csv")
+Apr_2021 <- read.csv("C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//202104-divvy-tripdata.csv")
+May_2021 <- read_csv("C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//202105-divvy-tripdata.csv")
+Jun_2021 <- read.csv("C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//202106-divvy-tripdata.csv")
+Jul_2021 <- read.csv("C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//202107-divvy-tripdata.csv")
+Aug_2021 <- read.csv("C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//202108-divvy-tripdata.csv")
+```
+
+### 2.2 Inspecting the dataframes
+The structure summary outputs will help to identify if any of the individual raw datasets have different string types, column names etc. and look for incongruencies.
+
+While the names don't have to be in the same order, they DO need to match perfectly before we can use a command to join them into one file.
+
+```{r checking structures}
+str(Sep_2020)
+str(Oct_2020)
+str(Nov_2020)
+str(Dec_2020)
+str(Jan_2021)
+str(Feb_2021)
+str(Mar_2021)
+str(Apr_2021)
+str(May_2021)
+str(Jun_2021)
+str(Jul_2021)
+str(Aug_2021)
+```
+
+
+### 2.3 Changing the string types
+The structure outputs showed that the Sep_2020 to Nov_2020 datasets listed the start_station_id and end_station_id columns as 'int' string types instead of 'chr' string types. Before merging the raw datasets into one, all of their string types should be converted to ‘chr’ so that they can stack correctly
+
+In addition the it also showed that the Sep_2020 to Nov_2020, Jan_2021 to Apr_2021 and Jun_2021 to Aug_2021 datasets listed the started_at and ended_at columns as 'chr' string type instead of 'datetime<UTC>' string type. Hence prior to merging the raw datasets into one, all of their string types should be converted to ‘datetime<UTC>’ so that they can stack correctly
+
+```{r changing the string types}
+Sep_2020 <- mutate(Sep_2020,
+                   start_station_id = as.character(start_station_id),
+                   end_station_id = as.character(end_station_id))
+Oct_2020 <- mutate(Oct_2020,
+                   start_station_id = as.character(start_station_id),
+                   end_station_id = as.character(end_station_id))
+Nov_2020 <- mutate(Nov_2020,
+                   start_station_id = as.character(start_station_id),
+                   end_station_id = as.character(end_station_id))
+
+Sep_2020$started_at <- as.POSIXct(
+  Sep_2020$started_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Sep_2020$ended_at <- as.POSIXct(
+  Sep_2020$ended_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Oct_2020$started_at <- as.POSIXct(
+  Oct_2020$started_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Oct_2020$ended_at <- as.POSIXct(
+  Oct_2020$ended_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Nov_2020$started_at <- as.POSIXct(
+  Nov_2020$started_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Nov_2020$ended_at <- as.POSIXct(
+  Nov_2020$ended_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Jan_2021$started_at <- as.POSIXct(
+  Jan_2021$started_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Jan_2021$ended_at <- as.POSIXct(
+  Jan_2021$ended_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Feb_2021$started_at <- as.POSIXct(
+  Feb_2021$started_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Feb_2021$ended_at <- as.POSIXct(
+  Feb_2021$ended_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Mar_2021$started_at <- as.POSIXct(
+  Mar_2021$started_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Mar_2021$ended_at <- as.POSIXct(
+  Mar_2021$ended_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Apr_2021$started_at <- as.POSIXct(
+  Apr_2021$started_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Apr_2021$ended_at <- as.POSIXct(
+  Apr_2021$ended_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Jun_2021$started_at <- as.POSIXct(
+  Jun_2021$started_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Jun_2021$ended_at <- as.POSIXct(
+  Jun_2021$ended_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Jul_2021$started_at <- as.POSIXct(
+  Jul_2021$started_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Jul_2021$ended_at <- as.POSIXct(
+  Jul_2021$ended_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Aug_2021$started_at <- as.POSIXct(
+  Aug_2021$started_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+Aug_2021$ended_at <- as.POSIXct(
+  Aug_2021$ended_at, 
+  format = "%Y-%m-%d %H:%M:%S"
+  )
+```
+
+
+### 2.4 Merging the datasets
+Stack all the individual quarters of data frames into one big data frame
+
+```{r merging datasets}
+all_trips <- bind_rows(Sep_2020, Oct_2020, Nov_2020, Dec_2020, 
+                       Jan_2021, Feb_2021, Mar_2021, Apr_2021, May_2021,
+                       Jun_2021, Jul_2021, Aug_2021)
+```
+
+# 3. Prepare dataset
+### 3.1 Arranging the dataset  
+Ordering the dataset by 'started_at' for convenience in further analysis .
+
+```{r ordering by date}
+all_trips <- all_trips %>%
+  arrange(started_at)
+```
+
+### 3.2 Creating date variables
+Creating separate columns for year, month, week, day, day of week, date (YMD) and time of the day (ToD) - will be useful for future analysis. 
+
+```{r creating date variables}
+all_trips$year <- format(all_trips$started_at, "%Y")
+all_trips$month <- format(all_trips$started_at, "%m")
+all_trips$week <- format(all_trips$started_at, "%W")
+all_trips$day <- format(all_trips$started_at, "%d")
+all_trips$day_of_week <- format(all_trips$started_at, "%A")
+all_trips$YMD <- format(all_trips$started_at, "%Y-%m-%d")
+all_trips$ToD <- format(all_trips$started_at, "%H:%M:%S")
+```
+
+### 3.3 Calculating the ride length 
+It will help to identify if there are any invalid data points as well as be useful for future analysis.
+
+```{r calculating the ride length}
+all_trips$ride_length <- difftime(all_trips$ended_at, 
+                                  all_trips$started_at,
+                                  units = "secs")
+
+all_trips$ride_length <- as.numeric(as.character(all_trips$ride_length))
+```
+
+### 4.1 Removing all the rows with negative ride length
+As identified above all the individual cases where with ride length is negative should be deleted from the cleaned dataset.
+
+```{r removing negative ride lengths}
+all_trips_cleaned <- all_trips %>% 
+  filter(!(ride_length < 0))
+```
+
+### 4.2 Removing duplicates
+
+The ride_id is unique to each data point. This instance should be reviewed to check if there are any duplicates and if yes – then delete the corresponding rows accordingly.
+
+```{r}
+ride_id_check <- all_trips_cleaned %>%
+  count(ride_id) %>%
+  filter(n > 1)
+```
+
+### 4.3 Removing incomplete rows 
+Removing all the rows where station_name is either left blank or NA.
+
+```{r removing incomplete rows}
+all_trips_cleaned <- all_trips_cleaned %>% 
+  filter(!(is.na(start_station_name)| start_station_name =="")) %>% 
+  filter(!(is.na(end_station_name)| end_station_name ==""))
+```
+
+### 4.4 Removing tests
+The dataframe includes a few hundred entries when bikes were taken out of docks and checked for quality by Divvy or ride_length
+
+On further inspection of the all_trips_cleaned dataset , there were a few station names that are fully capitalized text strings. In addition, it appeared that those station names also include the word 'TEST' within their string. This observation concludes that test rides have been coded as all capital letters as their station_name. It is further explored using the following code:
+
+```{r}
+capitalized_station_name_check <- all_trips_cleaned %>%
+  
+  filter( str_detect(start_station_name, "[:upper:]")
+          
+          & !str_detect(start_station_name,"[:lower:]")) %>% 
+    
+  group_by(start_station_name) %>% 
+  
+  count(start_station_name)
+```
+
+On further exploration of the identified instances, it appeared that the capitalized station name results were for test and maintenance purposes. Hence these rows should be deleted from the all_trips_cleaned dataset.
+
+```{r}
+all_trips_cleaned <- all_trips_cleaned %>%
+  
+  filter( !(str_detect(start_station_name, "[:upper:]")
+            
+            & !str_detect(start_station_name, "[:lower:]")) )
+```
+
+
+# 5. Understanding the dataset
+### 5.1 Check station name 
+There can be a few instances where stations may have been removed or added from Cyclistic's dataset. This can be assessed using the following lines of code:
+
+Here creating a data frame which lists the unique station names should be created.
+
+```{r}
+station_name_checked <- all_trips_cleaned %>% 
+  group_by(start_station_name) %>% 
+  count(start_station_name)
+```
+
+After this, data frames which list the unique station names used each month is created.
+
+```{r}
+Sep_2020_filter <- all_trips_cleaned %>% 
+  filter(month == "09") %>% 
+  group_by(start_station_name) %>% 
+  count(start_station_name)
+Oct_2020_filter <- all_trips_cleaned %>% 
+  filter(month == "10") %>% 
+  group_by(start_station_name) %>% 
+  count(start_station_name)
+Nov_2020_filter <- all_trips_cleaned %>% 
+  filter(month == "11") %>% 
+  group_by(start_station_name) %>% 
+  count(start_station_name)
+Dec_2020_filter <- all_trips_cleaned %>% 
+  filter(month == "12") %>% 
+  group_by(start_station_name) %>% 
+  count(start_station_name)
+Jan_2021_filter <- all_trips_cleaned %>% 
+  filter(month == "01") %>% 
+  group_by(start_station_name) %>% 
+  count(start_station_name)
+Feb_2021_filter <- all_trips_cleaned %>% 
+  filter(month == "02") %>% 
+  group_by(start_station_name) %>% 
+  count(start_station_name)
+Mar_2021_filter <- all_trips_cleaned %>% 
+  filter(month == "03") %>% 
+  group_by(start_station_name) %>% 
+  count(start_station_name)
+Apr_2021_filter <- all_trips_cleaned %>% 
+  filter(month == "04") %>% 
+  group_by(start_station_name) %>% 
+  count(start_station_name)
+May_2021_filter <- all_trips_cleaned %>% 
+  filter(month == "05") %>% 
+  group_by(start_station_name) %>% 
+  count(start_station_name)
+Jun_2021_filter <- all_trips_cleaned %>% 
+  filter(month == "06") %>% 
+  group_by(start_station_name) %>% 
+  count(start_station_name)
+Jul_2021_filter <- all_trips_cleaned %>% 
+  filter(month == "07") %>% 
+  group_by(start_station_name) %>% 
+  count(start_station_name)
+Aug_2021_filter <- all_trips_cleaned %>% 
+  filter(month == "08") %>% 
+  group_by(start_station_name) %>% 
+  count(start_station_name)
+```
+
+And then each unique station name is tested against the monthly filter data frames to check which unique station was used in that particular month. By creating columns for each individual month in the station name check data frame to check if the station name appears in the individual month filter data frames created earlier. And then adding a sum column to it.
+
+```{r}
+station_name_checked$Sep_2020 <- as.integer(station_name_checked$start_station_name 
+                                          %in% Sep_2020_filter$start_station_name)
+
+station_name_checked$Oct_2020 <- as.integer(station_name_checked$start_station_name 
+                                          %in% Oct_2020_filter$start_station_name)
+
+station_name_checked$Nov_2020 <- as.integer(station_name_checked$start_station_name 
+                                          %in% Nov_2020_filter$start_station_name)
+
+station_name_checked$Dec_2020 <- as.integer(station_name_checked$start_station_name 
+                                          %in% Dec_2020_filter$start_station_name)
+
+station_name_checked$Jan_2021 <- as.integer(station_name_checked$start_station_name 
+                                          %in% Jan_2021_filter$start_station_name)
+
+station_name_checked$Feb_2021 <- as.integer(station_name_checked$start_station_name 
+                                          %in% Feb_2021_filter$start_station_name)
+
+station_name_checked$Mar_2021 <- as.integer(station_name_checked$start_station_name 
+                                          %in% Mar_2021_filter$start_station_name)
+
+station_name_checked$Apr_2021 <- as.integer(station_name_checked$start_station_name 
+                                          %in% Apr_2021_filter$start_station_name)
+
+station_name_checked$May_2021 <- as.integer(station_name_checked$start_station_name 
+                                          %in% May_2021_filter$start_station_name)
+
+station_name_checked$Jun_2021 <- as.integer(station_name_checked$start_station_name 
+                                          %in% Jun_2021_filter$start_station_name)
+
+station_name_checked$Jul_2021 <- as.integer(station_name_checked$start_station_name 
+                                          %in% Jul_2021_filter$start_station_name)
+
+station_name_checked$Aug_2021 <- as.integer(station_name_checked$start_station_name 
+                                          %in% Aug_2021_filter$start_station_name)
+
+station_name_checked$count <- rowSums(station_name_checked[,3:14])
+```
+
+
+Now if we filter the ‘station_name_check’ data frame by count < 12 it shows that there are a few stations which have been added and/or removed from ‘Cyclistic’s profile between September 2020 and July 2021. In addition to this it also helps to identify which stations were not used in a particular month.
+
+After the above observation the following two data frames were then created to analyse which individual stations were most likely added (check_added) or removed (check_removed) from Cyclistic’s profile during the analysis period - using the following lines of code:
+Here note that - two months were used in each filter in order to avoid any anomalies whereby a station was simply not used for the month instead of the station being completely removed or added to Cyclistic’s profile.
+
+```{r}
+station_name_checked_added <- station_name_checked %>% 
+  filter(Sep_2020 < 1 & Oct_2020 < 1)
+
+station_name_checked_removed <- station_name_checked %>% 
+  filter(Aug_2021 < 1 & Jul_2021 < 1)
+```
+
+On running the above lines of code it shows that there are a few stations which have been added or removed from Cyclistic’s profile – this should be noted for future analysis purpose. 
+
+
+### 5.2 Checking the rideable type
+The following line of code returned three bike types used in the cleaned dataset. 
+```{r}
+unique(all_trips_cleaned$rideable_type)
+```
+
+Then the following code was ran to review if a bike type was added to the dataset at a later date.
+
+```{r}
+rideable_type_checked <- all_trips_cleaned %>% 
+  mutate(year = year(started_at), month = month(started_at)) %>% 
+  group_by(month, year) %>% 
+  select(rideable_type, month, year) %>% 
+  count(rideable_type)
+```
+
+The above lines of code shows that “classic_bikes” were added to the dataset from December 2020 onwards. This should be noted for future analysis purposes.
+
+# 6. Saving the dataset
+
+The below lines of code saves the required datasets for future analysis
+
+```{r}
+write.csv(all_trips_cleaned,"C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//all_trips_cleaned.csv", row.names = FALSE)
+write.csv(all_trips,"C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//all_trips.csv", row.names = FALSE)
+write.csv(rideable_type_checked,"C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//rideable_type_checked.csv", row.names = FALSE)
+write.csv(station_name_checked,"C:/Users/nayya/OneDrive/Desktop/Portfolio/Cyclistic/Raw Data//station_name_checked.csv", row.names = FALSE)
+```
+
+
+
+
+
+
