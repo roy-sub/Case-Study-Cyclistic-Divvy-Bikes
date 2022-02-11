@@ -5,11 +5,12 @@ navbar:
     - text: "Home"
       href: index.html
     - text: "Data Cleaning"
-      href: Data_cleaning Process.html
+      href: Data-Cleaning-Process.html
     - text: "Data Analysis"
-      href: Data Analysis.html
+      href: Data-Analysis.html
     - text: "Final Report"
-      href: Final report.html
+      href: Final-Report.html
       
 output_dir: "docs"
+
 
